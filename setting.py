@@ -1,7 +1,7 @@
 import os
 from tornado.options import define, options
 
-define("port", default=9002, help="run on the given port", type=int)
+define("port", default=80, help="run on the given port", type=int)
 define("logpath", default="log/", help="log path")
 
 
