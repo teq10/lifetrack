@@ -26,8 +26,24 @@ class WeixinHandler(BaseHandler):
                     "event_description": "", "res_type": "xml", "res_content": {"message": res, "echostr": echostr}}
         logger.info(log_info)
 
-    def get_current_user(self):
-        return None
+    def verification(self):
+
+        signature = self.get_argument('signature')
+        timestamp = self.get_argument('timestamp')
+        nonce = self.get_argument('nonce')
+
+        token = settings.get("token")
+
+        tmplist = [token, timestamp, nonce]
+        tmplist.sort()
+        tmpstr = ''.join(tmplist)
+        hashstr = sha1(tmpstr).hexdigest()
+
+        if hashstr == signature:
+            logger.info("connect with weixin server success!")
+            return True
+        logger.warn("connect with weixin server fail!")
+        return False
 
     def post_default(self):
         msg = self.get_msg()
@@ -44,11 +60,20 @@ class WeixinHandler(BaseHandler):
             if info:
                 logger.info("send a message to weixin, info = " + info)
                 self.write(self.rep_text(msg, info))
+            else:
+                self.write(self.rep_text(msg, u"不好意思，没处理好你的信息，请联系我的主人~"))
         except Exception, e:
             logger.error(e)
 
     def get_msg(self):
         return self.parse_msg(self.request.body)
+
+    def parse_msg(self, rawmsgstr):
+        root = ET.fromstring(rawmsgstr)
+        msg = {}
+        for child in root:
+            msg[child.tag] = child.text
+        return msg
 
     # 事件处理
     def post_event(self, msg):
@@ -57,41 +82,28 @@ class WeixinHandler(BaseHandler):
 
     def event_subscribe(self, msg):
         openid = msg["FromUserName"]
-        #get useinfo form weixin
-        userFromWeixin = self.get_subscribed_user(openid)
-        if not userFromWeixin:
-            logger.error("cannot get userInfo of a subscribed user, openid = " + openid)
-        else:
-            # user = get_user_info(openid)
-            #update
-            # upInsert_user_info(user)
-            logger.info("upinsert a userInfo, user= " + str(userFromWeixin))
-            return self.rep_follow(msg)
+        logger.info("a new user openid =  " + str(openid))
+        return self.rep_follow(msg)
 
     def event_unsubscribe(self, msg):
         return self.rep_unfollow(msg)
 
     def event_CLICK(self, msg):
         msg['Content'] = msg['EventKey']
-        return self.post_text(msg)
+        return '这是一个点击'
 
     def event_VIEW(self, msg):
-        pass
+        return '这是一个视频'
 
 
 
     #文本处理
     def post_text(self, msg):
         try:
-            weixinid = msg['FromUserName']
+            openid = msg['FromUserName']
             keyword = msg['Content'].strip().encode('utf-8')
-            url = Const.URL_MAIN % (keyword)
-            #print url
-            respond = requests.get(url)
-            respond = respond.content.strip()
-            url = Const.URL_WEB % (keyword)
 
-            info = respond
+            info = openid + keyword
             return info
         except Exception, e:
             pass
@@ -100,25 +112,7 @@ class WeixinHandler(BaseHandler):
         return "这是一个图片"
 
     def post_voice(self, msg):  #
-        try:
-            weixinid = msg['FromUserName']
-            if 'Recognition' in msg:
-                keyword = msg['Recognition'].strip().encode('utf-8')
-            else:
-                keyword = ''
-            url = Const.URL_MAIN % (keyword)
-            respond = requests.get(url)
-            respond = respond.content.strip()
-
-            url = Const.URL_WEB % (keyword)
-
-            info = respond + "\n\n" + "<a href='" + url + "'>查看更多</a>"
-            return info
-        except Exception, err:
-            # print err
-            pass
-        except EOFError, e:
-            pass
+        return "这是一段声音"
 
     def post_video(self, msg):
         return self.rep_default(msg)
@@ -132,22 +126,7 @@ class WeixinHandler(BaseHandler):
     def post_shortvideo(self, msg):
         return self.rep_default(msg)
 
-    def verification(self):
 
-        signature = self.get_argument('signature')
-        timestamp = self.get_argument('timestamp')
-        nonce = self.get_argument('nonce')
-
-        token = settings.get("token")
-
-        tmplist = [token, timestamp, nonce]
-        tmplist.sort()
-        tmpstr = ''.join(tmplist)
-        hashstr = sha1(tmpstr).hexdigest()
-
-        if hashstr == signature:
-            return True
-        return False
 
     #回复消息
 
@@ -166,83 +145,19 @@ class WeixinHandler(BaseHandler):
 
         return info
 
-    def rep_news(self, msg, rid):
-
-        ARTICLE_HEAD_TPL = \
-            u"""
-            <xml>
-            <ToUserName><![CDATA[%s]]></ToUserName>
-            <FromUserName><![CDATA[%s]]></FromUserName>
-            <CreateTime>%s</CreateTime>
-            <MsgType><![CDATA[news]]></MsgType>
-            <ArticleCount>%d</ArticleCount>
-            <Articles>
-            """
-        ARTICLE_ITEM_TPL = \
-            u"""
-            <item>
-            <Title><![CDATA[%s]]></Title>
-            <Description><![CDATA[%s]]></Description>
-            <PicUrl><![CDATA[%s]]></PicUrl>
-            <Url><![CDATA[%s]]></Url>
-            </item>
-            """
-        ARTICLE_FOOT_TPL = \
-            u"""
-            </Articles>
-            </xml>
-            """
-
-        replies = None
-        # print replies
-
-        article = ARTICLE_HEAD_TPL % (msg['FromUserName'], msg['ToUserName'], str(int(time.time())), len(replies))
-
-        for reply in replies:
-            url = reply.url
-            if len(url) == 0 or url.find('/cms/article') == 0:
-                url = 'http://%s/cms/article?id=%s&m=rule_content&wid=%s&wechat_signature=%s' % (
-                    self.request.host, reply.id, msg['FromUserName'], self.current_user.wechat.signature)
-            elif url.find('http') == -1:
-                # generate timetoken
-                timetoken = self.gen_timetoken(msg['FromUserName'])
-                url = 'http://' + self.request.host + url.replace('WEIXIN_ID',
-                                                                  msg['FromUserName']).replace('TIMETOKEN',
-                                                                                               timetoken).replace(
-                    'SIGNATURE', self.current_user.wechat.signature)
-            else:
-                url = url.replace("WEIXIN_ID", msg['FromUserName'])
-            thumbpic = self.static_url(reply.thumb)
-            item = ARTICLE_ITEM_TPL % (
-                reply.title,
-                reply.description,
-                # urlparse.urljoin('http://' + self.request.host, '/' + settings['upload_path'] + 'img/' + reply.thumb),
-                thumbpic if thumbpic.startswith('http') else ('http:' + thumbpic),
-                url.replace('WEIXIN_ID', msg['FromUserName']) if url else ''
-            )
-            article += item
-
-        info = article + ARTICLE_FOOT_TPL
-
-        return info
-
     def rep_default(self, msg):
-        return '您好！欢迎关注智能旅游服务平台，目前平台仅支持北京3～5日游旅游线路设计，如不明确规定旅游天数，将按照5日游设计线路。欢迎向我提问啦～（回复示例：“打算去北京玩4天，想吃全聚德”、“北京五日游线路推荐，想去八达岭长城”）'
-
+        return '我暂时还不支持接收这种消息'
 
     def rep_follow(self, msg):
-        return '您好！欢迎关注智能旅游服务平台，目前平台仅支持北京3～5日游旅游线路设计，如不明确规定旅游天数，将按照5日游设计线路。欢迎向我提问啦～（回复示例：“打算去北京玩4天，想吃全聚德”、“北京五日游线路推荐，想去八达岭长城”）'
+        return 'hello~欢迎关注"一张图一句话"！在这里你可以每天发一张图，一句话，不可修改！<br> ' \
+               '平淡的日子太多，精彩的瞬间让我来帮你记录~<br>' \
+               '让我们认真工作，放肆生活^_^'
 
     def rep_unfollow(self, msg):
         return 'byebye'
 
 
-    def parse_msg(self, rawmsgstr):
-        root = ET.fromstring(rawmsgstr)
-        msg = {}
-        for child in root:
-            msg[child.tag] = child.text
-        return msg
+
 
     def gen_timetoken(self, weixinid):
         now = str(time.strftime('%Y%m%d%H', time.localtime(time.time())))

@@ -54,12 +54,3 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             return ""
 
-
-    def get_subscribed_user(self, openid):
-        # print self.get_access_token(), openid
-        html = requests.get(Const.WXAPI_SUBSCRIBED_USERINFO % (self.get_access_token(), openid))
-        user = json.loads(html.content)
-        if user:
-            logger.info("get a user info from weixin, user = " + str(user))
-            return user
-        return {}
