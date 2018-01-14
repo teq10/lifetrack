@@ -13,7 +13,7 @@ from content import content_ope
 class WeixinHandler(BaseHandler):
     def check_xsrf_cookie(self):
         return True
-
+    today = "2018-01-01"
     ##verify
     def get_default(self):
 
@@ -109,12 +109,15 @@ class WeixinHandler(BaseHandler):
             keyword = msg['Content'].strip().encode('utf-8')
             logger.info("get text: user openid =  " + str(openid) + ";msg = " + keyword)
 
-            if not keyword.startswith("hi"):
-                info = "每日记录要以hi开头，我才记录哦"
-            else:
-                today = self.curr_date
-                month = self.curr_month
-                info = content_ope.record_msg(openid, keyword[2:], month, today)
+            # if not keyword.startswith("hi"):
+            #     info = "每日记录要以hi开头，我才记录哦"
+            # else:
+            #     today = self.curr_date
+            #     month = self.curr_month
+            #     info = content_ope.record_msg(openid, keyword[2:], month, today)
+            tmp = keyword.split(',')
+            self.today = tmp[0]
+            info = content_ope.record_msg(openid, tmp[1], self.curr_month, tmp[0])
             return info
         except Exception, e:
             logger.error(e)
@@ -127,9 +130,10 @@ class WeixinHandler(BaseHandler):
             url = msg['PicUrl']
             logger.info("get a photo: user openid =  " + str(openid) + ";photo = " + url)
 
-            today = self.curr_date
-            month = self.curr_month
-            info = content_ope.record_photo(openid, url, month, today)
+            # today = self.curr_date
+            # month = self.curr_month
+            # info = content_ope.record_photo(openid, url, month, today)
+            info = content_ope.record_photo(openid, url, self.curr_month, self.today)
             return info
         except Exception, e:
             logger.error(e)
