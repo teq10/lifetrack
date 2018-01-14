@@ -18,7 +18,7 @@ URL_SERVICE = "http://" + URL_TOUR + "/Smart_Service_Platform/Weixin_%s.jsp"
 WXAPP = "wx3124892de8d1e667"
 WXAPP_SECRET = "e83f890a44dde1278bb7b4f038f81e29"
 TOKEN = "0cf21ca674ee11e3987122000afa135c"
-ENCODE_KEY = "AH1dAUpj7g05OMq9qdbgeLwUEdvYQ7ugQHbA0zl2bF0"
+ENCODE_KEY = ""
 
 
 # 微信api常量定义
@@ -35,3 +35,4 @@ URL_GET_MENU = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=%s"
 URL_CREATE_MENU = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s"
 URL_DEL_MENU = ""
 
+TRACK_URL = "http://120.79.44.177/track?id=%s&month=%s"

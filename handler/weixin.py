@@ -5,9 +5,11 @@ import sys
 import xml.etree.ElementTree as ET
 from hashlib import sha1
 from base import *
+import constant as Const
 from setting import settings
 from util.log import logger
 from content import content_ope
+from setting import settings
 
 
 class WeixinHandler(BaseHandler):
@@ -114,6 +116,8 @@ class WeixinHandler(BaseHandler):
                 today = self.curr_date
                 month = self.curr_month
                 info = content_ope.record_msg(openid, keyword[2:], month, today)
+                url =Const.TRACK_URL % (openid, month)
+                info += "\n\n" + "<a href='" + url + "'>本月记录</a>"
             return info
         except Exception, e:
             logger.error(e)
@@ -173,7 +177,7 @@ class WeixinHandler(BaseHandler):
     def rep_follow(self, msg):
         return 'hello~欢迎关注"一张图一句话"！在这里你可以每天发一张图，一句话，不可修改！\n ' \
                '平淡的日子太多，精彩的瞬间让我来帮你记录~\n' \
-               '让我们认真工作，放肆生活^_^'
+               '^_^'
 
     def rep_unfollow(self, msg):
         return 'byebye'
