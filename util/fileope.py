@@ -24,15 +24,18 @@ class Fileope(object):
             logger.info(path + ": file already exists!")
 
     def append_data(self, path, data):
+        fp = open(path, 'a')
+
         try:
-            fp = open(path, 'a')
             fp.writelines(data + ",\n")
             return True
+
         except Exception,e:
             logger.error("write to file fail: " + data + e)
             return False
         finally:
             fp.close()
+
 
     def parse_data(self, path):
         if not self.is_exit(path):
@@ -52,7 +55,7 @@ class Fileope(object):
         finally:
             fp.close()
 
-
+logger.init(logpath="log/", log_level="DEBUG")
 file_ope = Fileope()
 
 if __name__ == "__main__":

@@ -42,12 +42,17 @@ class Content(object):
     def refresh_data(self, openid, month):
         if openid in contents and month == contents.get(openid).get(self.MONTH):
             return True
-
-        path = os.path.join(settings['data_path'], openid, month)
-        content = file_ope.parse_data(path)
+        path_dir = os.path.join(settings['data_path'], openid)
+        file_ope.create_path(path_dir)
+        path_file = os.path.join(path_dir, month)
+        content = file_ope.parse_data(path_file)
         if content is None:
             return False
         else:
-            contents[openid] = {self.MONTH: month, self.CONTENT: file_ope.parse_data(path)}
+            contents[openid] = {self.MONTH: month, self.CONTENT: content}
             return True
 content_ope = Content()
+if __name__ == "__main__":
+    # logger.init(logpath="log/", log_level="DEBUG")
+
+    print content_ope.record_photo("eqwe","eewtqwe","2018-01", "2018-01-02")
