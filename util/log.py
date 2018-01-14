@@ -46,6 +46,7 @@ class Log(object):
         # frame,filename,lineNo,functionName,code,unknowField = inspect.stack()[2]
         """日志格式：[时间] [类型] [记录代码] 信息"""
         if type(message) != dict:
+
             message = dict(message=message)
 
         message.update({"req_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')})

@@ -7,12 +7,14 @@ from hashlib import sha1
 from base import *
 from setting import settings
 from util.log import logger
+from content import content_ope
+
 
 class WeixinHandler(BaseHandler):
     def check_xsrf_cookie(self):
         return True
 
-    # #verify
+    ##verify
     def get_default(self):
 
         echostr = self.get_argument('echostr', '')
@@ -82,10 +84,13 @@ class WeixinHandler(BaseHandler):
 
     def event_subscribe(self, msg):
         openid = msg["FromUserName"]
-        logger.info("a new user openid =  " + str(openid))
+        logger.info("event_subscribe: a new user openid =  " + str(openid))
         return self.rep_follow(msg)
 
     def event_unsubscribe(self, msg):
+
+        openid = msg["FromUserName"]
+        logger.info("event_unsubscribe: user openid =  " + str(openid))
         return self.rep_unfollow(msg)
 
     def event_CLICK(self, msg):
@@ -102,29 +107,47 @@ class WeixinHandler(BaseHandler):
         try:
             openid = msg['FromUserName']
             keyword = msg['Content'].strip().encode('utf-8')
+            logger.info("get text: user openid =  " + str(openid) + ";msg = " + keyword)
 
-            info = openid + keyword
+            if keyword.startswith("hi"):
+                info = "每日记录要以hi开头，我才记录哦"
+            else:
+                today = self.curr_date
+                month = self.curr_month
+                info = content_ope.record_msg(openid, keyword[2:], month, today)
             return info
         except Exception, e:
-            pass
+            logger.error(e)
+            return "不好意思，发生了一点错误，请联系我的主人"
 
     def post_image(self, msg):  #图片消息
-        return "这是一个图片"
+        try:
 
+            openid = msg['FromUserName']
+            url = msg['PicUrl']
+            logger.info("get a photo: user openid =  " + str(openid) + ";photo = " + url)
+
+            today = self.curr_date
+            month = self.curr_month
+            info = content_ope.record_photo(openid, url, month, today)
+            return info
+        except Exception, e:
+            logger.error(e)
+            return "不好意思，发生了一点错误，请联系我的主人"
     def post_voice(self, msg):  #
-        return "这是一段声音"
+        return "这是一段声音" + "我还不能处理"
 
     def post_video(self, msg):
-        return self.rep_default(msg)
+        return "这是一段视频" + "我还不能处理"
 
     def post_location(self, msg):
-        return self.rep_default(msg)
+        return "这是一个地址" + "我还不能处理"
 
     def post_link(self, msg):
-        return self.rep_default(msg)
+        return "这是一个链接" + "我还不能处理"
 
     def post_shortvideo(self, msg):
-        return self.rep_default(msg)
+        return "这是一段短视频" + "我还不能处理"
 
 
 

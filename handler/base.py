@@ -16,6 +16,12 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def curr_now(self):
         return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    @property
+    def curr_date(self):
+        return datetime.datetime.now().strftime('%Y-%m-%d')
+    @property
+    def curr_month(self):
+        return datetime.datetime.now().strftime('%Y-%m')
 
     def get(self):
         method = self.get_argument('m', 'default')
