@@ -171,8 +171,8 @@ class WeixinHandler(BaseHandler):
         return '我暂时还不支持接收这种消息'
 
     def rep_follow(self, msg):
-        return 'hello~欢迎关注"一张图一句话"！在这里你可以每天发一张图，一句话，不可修改！<br/> ' \
-               '平淡的日子太多，精彩的瞬间让我来帮你记录~<br/>' \
+        return 'hello~欢迎关注"一张图一句话"！在这里你可以每天发一张图，一句话，不可修改！\n ' \
+               '平淡的日子太多，精彩的瞬间让我来帮你记录~\n' \
                '让我们认真工作，放肆生活^_^'
 
     def rep_unfollow(self, msg):
