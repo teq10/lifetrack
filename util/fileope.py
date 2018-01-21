@@ -1,5 +1,10 @@
-__author__ = 'tangenqing'
 # -*- coding: utf-8 -*-
+import random
+import string
+
+__author__ = 'tangenqing'
+
+import urllib
 import os
 from log import logger
 
@@ -79,6 +84,25 @@ class Fileope(object):
         finally:
             fp.close()
 
+    def download_and_save(self, url, path):
+        try:
+            if not self.is_exit(path):
+                    logger.info('文件夹' + path + '不存在，重新建立')
+                    self.create_path(path)
+
+            file_name = ''.join(random.sample(string.ascii_letters + string.digits, 8))+".jpg"
+            #拼接图片名（包含路径）
+            filename = os.path.join(path, file_name)
+            #下载图片，并保存到文件夹中
+            urllib.urlretrieve(url, filename=filename)
+            return file_name
+        except IOError as e:
+                logger.error('file ope error' + str(e))
+        except Exception as e:
+                logger.error('error ：'+ str(e))
+
+
+
 def dict2list(value):
     keys=value.keys()
     keys.sort(reverse=True)
@@ -89,6 +113,7 @@ file_ope = Fileope()
 
 if __name__ == "__main__":
     logger.init(logpath="log/", log_level="DEBUG")
-    path = "/Users/tangenqing/Documents/git/python/lifetrack/data/eqwe/2018-01"
+    path = "/Users/tangenqing/Documents/git/python/lifetrack/data/eqwe"
     tt = Fileope()
-    print tt.parse_data_list(path)
+
+    print os.path.join("dd", "2dddd" + "_pics", tt.download_and_save("http://mmbiz.qpic.cn/mmbiz_jpg/w8ZWQibfjlADfUvh5NF0zMMTnG9NrYwBykWNTbfw8pKIaLWUX9IzFcdD8wic9Ooo4gMibTjTAox308PzydJPTu4FA/0",path))

@@ -22,7 +22,9 @@
     {%if value.has_key('photo') %}
     <tr>
         <td></td>
-        <td><img src="{{value['photo']}}" width="400" height="400"></td>
+        <td>
+            <img src="{{static_url(value['photo'])}}" width="400" height="400">
+        </td>
     </tr>
     {%end%}
 

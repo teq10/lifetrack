@@ -31,9 +31,11 @@ class Content(object):
             if key in contents[openid][self.CONTENT]:
                 info = "今日图片已经记录了哦，不可变更"
             else :
-                path = os.path.join(settings['data_path'], openid, month)
-                file_ope.append_data(path, key + "," + url)
-                contents[openid][self.CONTENT][key] = url
+                root_path = os.path.join(settings['data_path'], openid)
+                real_path = os.path.join(openid, month + "_pics",
+                                         file_ope.download_and_save(url, os.path.join(root_path, month+"_pics")))
+                file_ope.append_data(os.path.join(root_path, month), key + "," + real_path)
+                contents[openid][self.CONTENT][key] = real_path
                 info = today + ": 今日图片记录已经帮你记录好了！"
         else:
             info = "发生了错误，请联系我的主人"
@@ -44,6 +46,7 @@ class Content(object):
             return True
         path_dir = os.path.join(settings['data_path'], openid)
         file_ope.create_path(path_dir)
+        file_ope.create_path(os.path.join(path_dir, month+"_pics"))
         path_file = os.path.join(path_dir, month)
         content = file_ope.parse_data(path_file)
         if content is None:
