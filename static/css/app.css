@@ -208,7 +208,7 @@ header {
 }
 
 .r {
-    border-bottom: 8px solid #eee;
+    /*border-bottom: 8px solid #eee;*/
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     width: 1px;
@@ -217,7 +217,7 @@ header {
 }
 
 .po-cmt {
-    padding-left: 60px;
+    padding-left: 20px;
     padding-right: 10px;
     width: 100%;
     box-sizing: border-box
