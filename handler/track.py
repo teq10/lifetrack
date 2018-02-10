@@ -15,4 +15,4 @@ class TrackHandler(BaseHandler):
         path = os.path.join(settings['data_path'], id, month)
         content = file_ope.parse_data_list(path)
         logger.info("get track data, openid="+ id + ",month=%s" +  month)
-        self.render("index.html", content=content)
+        self.render("index.html", content=content, month= month)

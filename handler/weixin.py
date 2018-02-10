@@ -109,8 +109,13 @@ class WeixinHandler(BaseHandler):
             openid = msg['FromUserName']
             keyword = msg['Content'].strip().encode('utf-8')
             logger.info("get text: user openid =  " + str(openid) + ";msg = " + keyword)
+            if keyword.startswith("bu"):
+                #补数据模式
+                today = keyword[2:12]
+                month = keyword[2:9]
+                info = content_ope.record_msg(openid, keyword[12:], month, today)
 
-            if not keyword.startswith("hi"):
+            elif not keyword.startswith("hi"):
                 info = "每日记录要以hi开头，我才记录哦"
             else:
                 today = self.curr_date

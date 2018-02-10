@@ -20,7 +20,7 @@ class Content(object):
                 path = os.path.join(settings['data_path'], openid, month)
                 file_ope.append_data(path, key + "," + msg)
                 contents[openid][self.CONTENT][key] = msg
-                info = today + ": 今日文字记录已经帮你记录好了！"
+                info = today + ": 当日文字记录已经帮你记录好了！"
         else:
             info = "发生了错误，请联系我的主人"
         return info
@@ -37,7 +37,7 @@ class Content(object):
                 ## record img info
                 file_ope.append_data(os.path.join(settings['data_path'], openid, month), key + "," + real_path)
                 contents[openid][self.CONTENT][key] = real_path
-                info = today + ": 今日图片记录已经帮你记录好了！"
+                info = today + ": 当日图片记录已经帮你记录好了！"
         else:
             info = "发生了错误，请联系我的主人"
         return info
