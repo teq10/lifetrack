@@ -3,4 +3,4 @@ log/
 *.pyc
 .idea/
 data/
-setting.py
+status/pics/

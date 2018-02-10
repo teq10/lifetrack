@@ -31,10 +31,11 @@ class Content(object):
             if key in contents[openid][self.CONTENT]:
                 info = "今日图片已经记录了哦，不可变更"
             else :
-                root_path = os.path.join(settings['data_path'], openid)
-                real_path = os.path.join(openid, month + "_pics",
-                                         file_ope.download_and_save(url, os.path.join(root_path, month+"_pics")))
-                file_ope.append_data(os.path.join(root_path, month), key + "," + real_path)
+                ## download img to local disk
+                real_path = os.path.join("pics",openid, month,
+                                         file_ope.download_and_save(url, os.path.join(settings['static_path'], "pics", openid, month)))
+                ## record img info
+                file_ope.append_data(os.path.join(settings['data_path'], openid, month), key + "," + real_path)
                 contents[openid][self.CONTENT][key] = real_path
                 info = today + ": 今日图片记录已经帮你记录好了！"
         else:
